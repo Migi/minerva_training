@@ -35,15 +35,23 @@ models:
     # Config indicated by + and applies to all files under models/example/
     example:
       +materialized: view
-      +schema: example
-    jaffle_shop:
-      +schema: jaffle_shop
-      +materialized: table
-      staging:
-        +materialized: view
-        +schema: jaffle_shop_staging
+      +schema: _int
+
+vars:
+  schooljaar: 2018
 
 seeds:
   dbt_playground:
-    jaffle_shop:
-      +schema: jaffle_shop_seeds
+    mdm:
+      +schema: mdm_dummydata
+      opleiding:
+        +column_types:
+          opleidingid: decimal(20,0)
+          code_opleiding: varchar
+      ingerichte_opleiding:
+        +column_types:
+          ingerichteopleidingid: decimal(20,0)
+          opleidingid: decimal(20,0)
+          schooljaar: varchar
+          begindatum: date
+          einddatum: date

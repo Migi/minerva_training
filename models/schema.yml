@@ -1,0 +1,66 @@
+
+version: 2
+
+models:
+  - name: my_first_dbt_model
+    description: "A starter dbt model"
+    columns:
+      - name: id
+        description: "The primary key for this table"
+        tests:
+          - unique
+          - not_null
+
+  - name: my_second_dbt_model
+    description: "A starter dbt model"
+    columns:
+      - name: id
+        description: "The primary key for this table"
+        tests:
+          - unique
+          - not_null
+  - name: opleiding_aantal_inrichtingen
+    description: "Het aantal ingerichte opleidingen per opleiding"
+    tests:
+    - is_niet_leeg
+    columns:
+      - name: opleidingid
+        description: "Het id van de opleiding"
+        tests:
+        - unique
+        - not_null
+        - relationships:
+            to: ref('opleiding')
+            field: opleidingid
+      - name: aantal_inrichtingen
+        description: "Het aantal keer dat deze opleiding werd ingericht"
+        tests:
+        - not_null
+        - is_kleiner_dan:
+            drempel: 1000000
+        - dbt_expectations.expect_column_values_to_be_between:
+            min_value: 0
+            max_value: 1000000
+      - name: aantal_in_gegeven_schooljaar
+        description: >
+          Het aantal opleidingen ingericht in het schooljaar gegeven
+          door de dbt variabele schooljaar, tenzij deze gelijk
+          is aan "onbekend", dan is het het aantal ingerichte
+          opleidingen met schooljaar gelijk aan NULL.
+  - name: opleiding
+    columns:
+      - name: bronsysteemcode
+        tests:
+        - accepted_values:
+            values: ["DISC", "DV", "DKO"]
+      - name: consolidatie
+        tests:
+        - is_null
+          
+sources:
+- name: mdm
+  database: postgres
+  schema: dbt_playground_mdm_dummydata
+  tables:
+  - name: ingerichte_opleiding
+  - name: opleiding
